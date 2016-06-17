@@ -16,7 +16,7 @@ import java.util.Base64;
 
 import static org.junit.Assert.*;
 
-public class TixTimeServerTest {
+public class TixTimeCoreTest {
 
 	private EmbeddedChannel embeddedChannel;
 	private InetSocketAddress from;
