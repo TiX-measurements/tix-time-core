@@ -26,14 +26,14 @@ public class TixMessageEncoder extends MessageToMessageEncoder<TixTimestampPacka
 		if (msg instanceof TixDataPackage) {
 			String data = TixDataPackage.DATA_HEADER +
 					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.ENCODER.apply(((TixDataPackage) msg).getPublicKey()) +
+					TixDataPackage.STR_ENCODER.apply(((TixDataPackage) msg).getPublicKey()) +
+					TixDataPackage.DATA_DELIMITER +
+					TixDataPackage.STR_ENCODER.apply(((TixDataPackage) msg).getFilename()) +
+					TixDataPackage.DATA_DELIMITER +
+					TixDataPackage.STR_ENCODER.apply(((TixDataPackage) msg).getMessage()) +
 					TixDataPackage.DATA_DELIMITER +
 					TixDataPackage.ENCODER.apply(((TixDataPackage) msg).getSignature()) +
-					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.ENCODER.apply(((TixDataPackage) msg).getFilename()) +
-					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.ENCODER.apply(((TixDataPackage) msg).getMessage()) +
-					TixDataPackage.DATA_DELIMITER;
+					TixDataPackage.DATA_DELIMITER ;
 			packet.content().writeBytes(data.getBytes(CharsetUtil.UTF_8));
 		}
 		out.add(packet);

@@ -21,18 +21,16 @@ public class TixTimeCoreTest {
 	private EmbeddedChannel embeddedChannel;
 	private InetSocketAddress from;
 	private InetSocketAddress to;
-	private long initialTimestamp;
 	private String publicKey;
 	private String filename;
 	private String message;
-	private String signature;
+	private byte[] signature;
 
 	@Before
 	public void setUp() throws Exception {
 		embeddedChannel = new EmbeddedChannel(new TixMessageEncoder(), new TixMessageDecoder());
 		from = InetSocketAddress.createUnresolved("localhost", 4500);
 		to = InetSocketAddress.createUnresolved("localhost", 4501);
-		initialTimestamp = TixTimeUitl.NANOS_OF_DAY.get();
 		setUpData();
 	}
 
@@ -47,7 +45,7 @@ public class TixTimeCoreTest {
 			Signature signer = Signature.getInstance("SHA1WithRSA");
 			signer.initSign(keyPair.getPrivate());
 			signer.update(message.getBytes());
-			signature = new String(signer.sign());
+			signature = signer.sign();
 		} catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
 			e.printStackTrace();
 		}
@@ -67,7 +65,11 @@ public class TixTimeCoreTest {
 
 	@Test
 	public void shouldEncodeAndDecodeTixTimestampPackage() throws Exception {
+		long initialTimestamp = TixTimeUitl.NANOS_OF_DAY.get();
 		TixTimestampPackage timestampPackage = new TixTimestampPackage(from, to, initialTimestamp);
+		timestampPackage.setReceptionTimestamp(initialTimestamp + 1);
+		timestampPackage.setSentTimestamp(initialTimestamp + 2);
+		timestampPackage.setFinalTimestamp(initialTimestamp + 3);
 		TixTimestampPackage returnedTimestampPackage = passThroughChannel(timestampPackage);
 		assertFalse(timestampPackage == returnedTimestampPackage);
 		assertEquals(timestampPackage, returnedTimestampPackage);
@@ -75,8 +77,12 @@ public class TixTimeCoreTest {
 
 	@Test
 	public void shouldEncodeAndDecodeTixDataPackage() throws Exception {
+		long initialTimestamp = TixTimeUitl.NANOS_OF_DAY.get();
 		TixDataPackage dataPackage = new TixDataPackage(from, to, initialTimestamp,
-				publicKey, signature, filename, message);
+				publicKey, filename, message, signature);
+		dataPackage.setReceptionTimestamp(initialTimestamp + 1);
+		dataPackage.setSentTimestamp(initialTimestamp + 2);
+		dataPackage.setFinalTimestamp(initialTimestamp + 3);
 		TixDataPackage returnedDataPackage = passThroughChannel(dataPackage);
 		assertFalse(dataPackage == returnedDataPackage);
 		assertEquals(dataPackage, returnedDataPackage);

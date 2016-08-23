@@ -14,17 +14,19 @@ import static org.assertj.core.api.Assertions.*;
 public class TixDataPackage extends TixTimestampPackage {
 	public static final int TIX_DATA_PACKAGE_SIZE = TIX_TIMESTAMP_PACKAGE_SIZE + 4400;
 	public static final Function<String, String> DECODER = (String s) -> new String(Base64.getDecoder().decode(s));
-	public static final Function<String, String> ENCODER = (String s) -> Base64.getEncoder().encodeToString(s.getBytes());
+	public static final Function<String, byte[]> BYTE_DECODER = (String s) -> Base64.getDecoder().decode(s);
+	public static final Function<String, String> STR_ENCODER = (String s) -> Base64.getEncoder().encodeToString(s.getBytes());
+	public static final Function<byte[], String> ENCODER = (byte[] bytes) -> Base64.getEncoder().encodeToString(bytes);
 	public static final String DATA_DELIMITER = ";;";
 	public static final String DATA_HEADER = "DATA";
 
 	private final String publicKey;
-	private final String signature;
 	private final String filename;
 	private final String message;
+	private final byte[] signature;
 
-	public TixDataPackage(InetSocketAddress from, InetSocketAddress to, long initialTimestamp, String publicKey, String signature,
-	                      String filename, String message) {
+	public TixDataPackage(InetSocketAddress from, InetSocketAddress to, long initialTimestamp, String publicKey,
+	                      String filename, String message, byte[] signature) {
 		super(from, to, initialTimestamp);
 		assertThat(publicKey).isNotNull().isNotEmpty();
 		assertThat(signature).isNotNull().isNotEmpty();
@@ -40,7 +42,7 @@ public class TixDataPackage extends TixTimestampPackage {
 		return publicKey;
 	}
 
-	public String getSignature() {
+	public byte[] getSignature() {
 		return signature;
 	}
 
@@ -79,6 +81,21 @@ public class TixDataPackage extends TixTimestampPackage {
 				.append(this.getFilename())
 				.append(this.getMessage())
 				.hashCode();
+	}
+
+	public String toJson() {
+		return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+				.append("initialTimestamp", this.getInitalTimestamp())
+				.append("receptionTimestamp", this.getReceptionTimestamp())
+				.append("sentTimestamp", this.getSentTimestamp())
+				.append("finalTimestamp", this.getFinalTimestamp())
+				.append("from", this.getFrom().getAddress().getHostAddress() + ":" + this.getFrom().getPort())
+				.append("to", this.getTo().getAddress().getHostAddress() + ":" + this.getTo().getPort())
+				.append("filename", this.getFilename())
+				.append("message", this.getMessage())
+				.append("publicKey", this.getPublicKey())
+				.append("signature", this.getSignature())
+				.build();
 	}
 
 	@Override

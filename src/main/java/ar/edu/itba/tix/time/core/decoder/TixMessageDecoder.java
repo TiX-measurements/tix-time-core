@@ -8,6 +8,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang3.CharSetUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,20 +39,20 @@ public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 			String[] data = rawData.split(TixDataPackage.DATA_DELIMITER);
 			if (data[0].equals(TixDataPackage.DATA_HEADER)) {
 				final String publicKey = TixDataPackage.DECODER.apply(data[1].trim()).trim();
-				final String signature = TixDataPackage.DECODER.apply(data[2].trim()).trim();
-				final String logFileName = TixDataPackage.DECODER.apply(data[3].trim()).trim();
-				final String message = TixDataPackage.DECODER.apply(data[4].trim()).trim();
-				tixPackage = new TixDataPackage(from, to, initialTimestamp, publicKey, signature, logFileName, message);
+				final String logFileName = TixDataPackage.DECODER.apply(data[2].trim()).trim();
+				final String message = TixDataPackage.DECODER.apply(data[3].trim()).trim();
+				final byte[] signature = TixDataPackage.BYTE_DECODER.apply(data[4].trim());
+				tixPackage = new TixDataPackage(from, to, initialTimestamp, publicKey, logFileName, message, signature);
 			} else {
 				logger.error("Malformed data package received {}", rawData);
 				throw new IllegalArgumentException("Malformed data package received " + rawData);
 			}
 		} else {
 			tixPackage = new TixTimestampPackage(from, to, initialTimestamp);
-			tixPackage.setReceptionTimestamp(receivedTimestamp);
-			tixPackage.setSentTimestamp(sentTimestamp);
-			tixPackage.setFinalTimestamp(finalTimestamp);
 		}
+		tixPackage.setReceptionTimestamp(receivedTimestamp);
+		tixPackage.setSentTimestamp(sentTimestamp);
+		tixPackage.setFinalTimestamp(finalTimestamp);
 		out.add(tixPackage);
 		logger.exit(tixPackage);
 	}
