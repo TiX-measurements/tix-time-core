@@ -83,21 +83,6 @@ public class TixDataPackage extends TixTimestampPackage {
 				.hashCode();
 	}
 
-	public String toJson() {
-		return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-				.append("initialTimestamp", this.getInitalTimestamp())
-				.append("receptionTimestamp", this.getReceptionTimestamp())
-				.append("sentTimestamp", this.getSentTimestamp())
-				.append("finalTimestamp", this.getFinalTimestamp())
-				.append("from", this.getFrom().getAddress().getHostAddress() + ":" + this.getFrom().getPort())
-				.append("to", this.getTo().getAddress().getHostAddress() + ":" + this.getTo().getPort())
-				.append("filename", this.getFilename())
-				.append("message", this.getMessage())
-				.append("publicKey", this.getPublicKey())
-				.append("signature", this.getSignature())
-				.build();
-	}
-
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
