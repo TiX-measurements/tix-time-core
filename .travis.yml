@@ -1,5 +1,6 @@
-laguage: java
-
+language: java
 jdk:
   - oraclejdk8
 
+script:
+  - ./gradlew test jacocoTestReport
