@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
 import java.security.*;
 import java.util.Base64;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 public class TixTimeCoreTest {
 
@@ -52,14 +52,15 @@ public class TixTimeCoreTest {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T extends TixTimestampPackage> T passThroughChannel(T message) {
-		assertTrue(embeddedChannel.writeOutbound(message));
+		assertThat(embeddedChannel.writeOutbound(message)).isTrue();
 		Object o = embeddedChannel.readOutbound();
-		assertNotNull(o);
+		assertThat(o).isNotNull();
 		DatagramPacket datagramPacket = (DatagramPacket)o;
-		assertTrue(embeddedChannel.writeInbound(datagramPacket));
+		assertThat(embeddedChannel.writeInbound(datagramPacket)).isTrue();
 		Object returnedMessage = embeddedChannel.readInbound();
-		assertNotNull(returnedMessage);
+		assertThat(returnedMessage).isNotNull();
 		return (T)returnedMessage;
 	}
 
@@ -71,8 +72,8 @@ public class TixTimeCoreTest {
 		timestampPackage.setSentTimestamp(initialTimestamp + 2);
 		timestampPackage.setFinalTimestamp(initialTimestamp + 3);
 		TixTimestampPackage returnedTimestampPackage = passThroughChannel(timestampPackage);
-		assertFalse(timestampPackage == returnedTimestampPackage);
-		assertEquals(timestampPackage, returnedTimestampPackage);
+		assertThat(timestampPackage).isNotSameAs(returnedTimestampPackage)
+									.isEqualTo(returnedTimestampPackage);
 	}
 
 	@Test
@@ -84,7 +85,7 @@ public class TixTimeCoreTest {
 		dataPackage.setSentTimestamp(initialTimestamp + 2);
 		dataPackage.setFinalTimestamp(initialTimestamp + 3);
 		TixDataPackage returnedDataPackage = passThroughChannel(dataPackage);
-		assertFalse(dataPackage == returnedDataPackage);
-		assertEquals(dataPackage, returnedDataPackage);
+		assertThat(returnedDataPackage).isEqualTo(dataPackage)
+				                       .isNotSameAs(dataPackage);
 	}
 }
