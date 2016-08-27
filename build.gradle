@@ -4,6 +4,7 @@ version '0.1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -35,4 +36,25 @@ dependencies {
     // Testing
     testCompile group: 'junit', name: 'junit', version: "${junitVersion}"
     testCompile group: 'org.mockito', name: 'mockito-all', version: "${mockitoVersion}"
+}
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        xml.destination "${buildDir}/test-results/coverage.xml"
+        csv.enabled false
+        html.destination "${buildDir}/reports/coverage"
+    }
+}
+
+test {
+    jacoco {
+        append = false
+        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+        classDumpFile = file("$buildDir/jacoco/classpathdumps")
+    }
 }

@@ -1,0 +1,5 @@
+laguage: java
+
+jdk:
+  - oraclejdk8
+
