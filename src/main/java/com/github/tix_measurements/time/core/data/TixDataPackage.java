@@ -1,4 +1,4 @@
-package ar.edu.itba.tix.time.core.data;
+package com.github.tix_measurements.time.core.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

@@ -1,14 +1,13 @@
-package ar.edu.itba.tix.time.core.decoder;
+package com.github.tix_measurements.time.core.decoder;
 
-import ar.edu.itba.tix.time.core.data.TixDataPackage;
-import ar.edu.itba.tix.time.core.data.TixTimestampPackage;
+import com.github.tix_measurements.time.core.data.TixDataPackage;
+import com.github.tix_measurements.time.core.data.TixTimestampPackage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
-import org.apache.commons.lang3.CharSetUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

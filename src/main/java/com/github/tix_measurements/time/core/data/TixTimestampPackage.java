@@ -1,4 +1,4 @@
-package ar.edu.itba.tix.time.core.data;
+package com.github.tix_measurements.time.core.data;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -10,7 +10,6 @@ import java.net.InetSocketAddress;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TixTimestampPackage {

@@ -1,10 +1,10 @@
-package ar.edu.itba.tix.time.core;
+package com.github.tix_measurements.time.core;
 
-import ar.edu.itba.tix.time.core.data.TixDataPackage;
-import ar.edu.itba.tix.time.core.data.TixTimestampPackage;
-import ar.edu.itba.tix.time.core.decoder.TixMessageDecoder;
-import ar.edu.itba.tix.time.core.encoder.TixMessageEncoder;
-import ar.edu.itba.tix.time.core.util.TixTimeUitl;
+import com.github.tix_measurements.time.core.data.TixDataPackage;
+import com.github.tix_measurements.time.core.data.TixTimestampPackage;
+import com.github.tix_measurements.time.core.decoder.TixMessageDecoder;
+import com.github.tix_measurements.time.core.encoder.TixMessageEncoder;
+import com.github.tix_measurements.time.core.util.TixTimeUitl;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.Before;

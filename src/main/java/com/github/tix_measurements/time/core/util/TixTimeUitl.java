@@ -1,4 +1,4 @@
-package ar.edu.itba.tix.time.core.util;
+package com.github.tix_measurements.time.core.util;
 
 import java.time.LocalTime;
 import java.util.function.Supplier;
