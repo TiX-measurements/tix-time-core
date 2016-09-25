@@ -38,6 +38,10 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-all', version: "${mockitoVersion}"
 }
 
+javadoc {
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+}
+
 jacoco {
     toolVersion = "0.7.6.201602180812"
 }

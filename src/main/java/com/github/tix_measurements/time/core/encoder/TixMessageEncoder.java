@@ -1,7 +1,7 @@
 package com.github.tix_measurements.time.core.encoder;
 
-import com.github.tix_measurements.time.core.data.TixDataPackage;
-import com.github.tix_measurements.time.core.data.TixTimestampPackage;
+import com.github.tix_measurements.time.core.data.TixDataPacket;
+import com.github.tix_measurements.time.core.data.TixTimestampPacket;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
@@ -12,28 +12,34 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
-public class TixMessageEncoder extends MessageToMessageEncoder<TixTimestampPackage> {
+/**
+ * {@link MessageToMessageEncoder} that encodes TiX Packet, either {@link TixTimestampPacket} or {@link TixDataPacket} into a {@link DatagramPacket}.
+ */
+public class TixMessageEncoder extends MessageToMessageEncoder<TixTimestampPacket> {
 	private final Logger logger = LogManager.getLogger(this.getClass());
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void encode(ChannelHandlerContext ctx, TixTimestampPackage msg, List<Object> out) throws Exception {
+	protected void encode(ChannelHandlerContext ctx, TixTimestampPacket msg, List<Object> out) throws Exception {
 		logger.entry(ctx, msg, out);
 		DatagramPacket packet = new DatagramPacket(Unpooled.buffer(), msg.getTo(), msg.getFrom());
-		TixTimestampPackage.TIMESTAMP_WRITER.apply(packet.content(), msg.getInitalTimestamp());
-		TixTimestampPackage.TIMESTAMP_WRITER.apply(packet.content(), msg.getReceptionTimestamp());
-		TixTimestampPackage.TIMESTAMP_WRITER.apply(packet.content(), msg.getSentTimestamp());
-		TixTimestampPackage.TIMESTAMP_WRITER.apply(packet.content(), msg.getFinalTimestamp());
-		if (msg instanceof TixDataPackage) {
-			String data = TixDataPackage.DATA_HEADER +
-					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.STR_ENCODER.apply(((TixDataPackage) msg).getPublicKey()) +
-					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.STR_ENCODER.apply(((TixDataPackage) msg).getFilename()) +
-					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.STR_ENCODER.apply(((TixDataPackage) msg).getMessage()) +
-					TixDataPackage.DATA_DELIMITER +
-					TixDataPackage.ENCODER.apply(((TixDataPackage) msg).getSignature()) +
-					TixDataPackage.DATA_DELIMITER ;
+		TixTimestampPacket.TIMESTAMP_WRITER.apply(packet.content(), msg.getInitialTimestamp());
+		TixTimestampPacket.TIMESTAMP_WRITER.apply(packet.content(), msg.getReceptionTimestamp());
+		TixTimestampPacket.TIMESTAMP_WRITER.apply(packet.content(), msg.getSentTimestamp());
+		TixTimestampPacket.TIMESTAMP_WRITER.apply(packet.content(), msg.getFinalTimestamp());
+		if (msg instanceof TixDataPacket) {
+			String data = TixDataPacket.DATA_HEADER +
+					TixDataPacket.DATA_DELIMITER +
+					TixDataPacket.STR_ENCODER.apply(((TixDataPacket) msg).getPublicKey()) +
+					TixDataPacket.DATA_DELIMITER +
+					TixDataPacket.STR_ENCODER.apply(((TixDataPacket) msg).getFilename()) +
+					TixDataPacket.DATA_DELIMITER +
+					TixDataPacket.STR_ENCODER.apply(((TixDataPacket) msg).getMessage()) +
+					TixDataPacket.DATA_DELIMITER +
+					TixDataPacket.ENCODER.apply(((TixDataPacket) msg).getSignature()) +
+					TixDataPacket.DATA_DELIMITER ;
 			packet.content().writeBytes(data.getBytes(CharsetUtil.UTF_8));
 		}
 		out.add(packet);

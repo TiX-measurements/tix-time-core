@@ -1,10 +1,10 @@
 package com.github.tix_measurements.time.core;
 
-import com.github.tix_measurements.time.core.data.TixDataPackage;
-import com.github.tix_measurements.time.core.data.TixTimestampPackage;
+import com.github.tix_measurements.time.core.data.TixDataPacket;
+import com.github.tix_measurements.time.core.data.TixTimestampPacket;
 import com.github.tix_measurements.time.core.decoder.TixMessageDecoder;
 import com.github.tix_measurements.time.core.encoder.TixMessageEncoder;
-import com.github.tix_measurements.time.core.util.TixTimeUitl;
+import com.github.tix_measurements.time.core.util.TixTimeUtils;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.socket.DatagramPacket;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class TixTimeCoreTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends TixTimestampPackage> T passThroughChannel(T message) {
+	private <T extends TixTimestampPacket> T passThroughChannel(T message) {
 		assertThat(embeddedChannel.writeOutbound(message)).isTrue();
 		Object o = embeddedChannel.readOutbound();
 		assertThat(o).isNotNull();
@@ -66,25 +66,25 @@ public class TixTimeCoreTest {
 
 	@Test
 	public void shouldEncodeAndDecodeTixTimestampPackage() throws Exception {
-		long initialTimestamp = TixTimeUitl.NANOS_OF_DAY.get();
-		TixTimestampPackage timestampPackage = new TixTimestampPackage(from, to, initialTimestamp);
+		long initialTimestamp = TixTimeUtils.NANOS_OF_DAY.get();
+		TixTimestampPacket timestampPackage = new TixTimestampPacket(from, to, initialTimestamp);
 		timestampPackage.setReceptionTimestamp(initialTimestamp + 1);
 		timestampPackage.setSentTimestamp(initialTimestamp + 2);
 		timestampPackage.setFinalTimestamp(initialTimestamp + 3);
-		TixTimestampPackage returnedTimestampPackage = passThroughChannel(timestampPackage);
+		TixTimestampPacket returnedTimestampPackage = passThroughChannel(timestampPackage);
 		assertThat(timestampPackage).isNotSameAs(returnedTimestampPackage)
 									.isEqualTo(returnedTimestampPackage);
 	}
 
 	@Test
 	public void shouldEncodeAndDecodeTixDataPackage() throws Exception {
-		long initialTimestamp = TixTimeUitl.NANOS_OF_DAY.get();
-		TixDataPackage dataPackage = new TixDataPackage(from, to, initialTimestamp,
+		long initialTimestamp = TixTimeUtils.NANOS_OF_DAY.get();
+		TixDataPacket dataPackage = new TixDataPacket(from, to, initialTimestamp,
 				publicKey, filename, message, signature);
 		dataPackage.setReceptionTimestamp(initialTimestamp + 1);
 		dataPackage.setSentTimestamp(initialTimestamp + 2);
 		dataPackage.setFinalTimestamp(initialTimestamp + 3);
-		TixDataPackage returnedDataPackage = passThroughChannel(dataPackage);
+		TixDataPacket returnedDataPackage = passThroughChannel(dataPackage);
 		assertThat(returnedDataPackage).isEqualTo(dataPackage)
 				                       .isNotSameAs(dataPackage);
 	}
