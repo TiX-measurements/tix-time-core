@@ -7,6 +7,7 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - .utility/push_javadocs.sh
 
 env:
   global:
