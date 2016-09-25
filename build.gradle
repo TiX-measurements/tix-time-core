@@ -48,6 +48,10 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-all', version: "${mockitoVersion}"
 }
 
+task getVersion << {
+    println version
+}
+
 javadoc {
     options.memberLevel = JavadocMemberLevel.PRIVATE
 }
