@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 if [ "$TRAVIS_REPO_SLUG" == "TiX-measurements/tix-time-core" ] && [ "$TRAVIS_JDK_VERSION" == "oraclejdk8" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
 
+  echo -e "Creating javadoc...\n"
+
+  ./gradlew javadoc
+  
   echo -e "Publishing javadoc...\n"
 
   cp -R build/docs/javadoc $HOME/javadoc-latest
