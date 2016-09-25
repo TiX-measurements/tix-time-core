@@ -1,10 +1,11 @@
-group 'com.github.tix_measurements'
+group 'com.github.tix-measurements'
 version '0.1.0'
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'jacoco'
+apply plugin: 'com.bmuschko.nexus'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -75,4 +76,61 @@ test {
         destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
         classDumpFile = file("$buildDir/jacoco/classpathdumps")
     }
+}
+
+modifyPom {
+    project {
+        name 'tix-time-core'
+        description 'TiX Time Core Lib for Netty Server'
+        url 'https://github.com/TiX-measurements/tix-time-core'
+        packaging 'jar'
+        organization {
+            name 'TiX'
+            url 'http://tix.innova-red.net'
+        }
+        licenses {
+            license {
+                name 'GNU Lesser General Public License V3'
+                url 'https://www.gnu.org/licenses/lgpl-3.0.txt'
+                distribution 'repo'
+            }
+        }
+        scm {
+            url 'https://github.com/TiX-measurements/tix-time-core'
+            connection 'scm:git:https://github.com/TiX-measurements/tix-time-core'
+            developerConnection 'scm:git@github.com:TiX-measurements/tix-time-core.git'
+        }
+        developers {
+            developer {
+                id 'fnmartinez'
+                name 'Facundo Martinez Correa'
+            }
+            developer {
+                id 'mannias'
+                name 'Matías Domingues'
+            }
+            developer {
+                id 'jperezcu'
+                name 'Javier Perez Cunarro'
+            }
+        }
+        // We need to remove the SWT dependency. SWT is platform specific and not available in Maven Central.
+        // For this reason, we don't include it in the POM. If you need to grab SWT for your project, and you're
+        // using Gradle, check out how we get it from the Google Code repo in our build.gradle.
+        dependencies {
+
+        }
+    }
+}
+
+extraArchive {
+    sources = false
+    tests = true
+    javadoc = false
+}
+
+nexus {
+    sign = true
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
 }
