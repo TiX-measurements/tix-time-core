@@ -119,7 +119,7 @@ modifyPom {
 
 extraArchive {
     sources = true
-    tests = true
+    tests = false
     javadoc = true
 }
 
