@@ -1,13 +1,26 @@
-group 'com.github.tix_measurements'
+group 'com.github.tix-measurements'
 version '0.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'jacoco'
+apply plugin: 'com.bmuschko.nexus'
+apply plugin: 'io.codearte.nexus-staging'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+	}
+}
 
 repositories {
     mavenCentral()
@@ -38,6 +51,10 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-all', version: "${mockitoVersion}"
 }
 
+task getVersion << {
+    println version
+}
+
 javadoc {
     options.memberLevel = JavadocMemberLevel.PRIVATE
 }
@@ -61,4 +78,55 @@ test {
         destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
         classDumpFile = file("$buildDir/jacoco/classpathdumps")
     }
+}
+
+modifyPom {
+    project {
+        name 'tix-time-core'
+        description 'TiX Time Core Lib for Netty Server'
+        url 'https://github.com/TiX-measurements/tix-time-core'
+        packaging 'jar'
+        organization {
+            name 'TiX'
+            url 'http://tix.innova-red.net'
+        }
+        licenses {
+            license {
+                name 'GNU Lesser General Public License V3'
+                url 'https://www.gnu.org/licenses/lgpl-3.0.txt'
+                distribution 'repo'
+            }
+        }
+        scm {
+            url 'https://github.com/TiX-measurements/tix-time-core'
+            connection 'scm:git:https://github.com/TiX-measurements/tix-time-core'
+            developerConnection 'scm:git@github.com:TiX-measurements/tix-time-core.git'
+        }
+        developers {
+            developer {
+                id 'fnmartinez'
+                name 'Facundo Martinez Correa'
+            }
+            developer {
+                id 'mannias'
+                name 'Matías Domingues'
+            }
+            developer {
+                id 'jperezcu'
+                name 'Javier Perez Cunarro'
+            }
+        }
+    }
+}
+
+extraArchive {
+    sources = true
+    tests = false
+    javadoc = true
+}
+
+nexus {
+    sign = true
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
 }
