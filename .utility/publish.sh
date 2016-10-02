@@ -2,7 +2,7 @@
 if [ "$TRAVIS_REPO_SLUG" == "TiX-measurements/tix-time-core" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "deploy" ]; then
   if [[ $(./gradlew -q getVersion) == *SNAPSHOT* ]]; then
       echo 'The deploy branch is only to deploy final releases. No snapshots allowed.'
-      return 0
+      exit 0
   fi
 
   echo -e "Starting publish to Sonatype...\n"
@@ -14,6 +14,6 @@ if [ "$TRAVIS_REPO_SLUG" == "TiX-measurements/tix-time-core" ] && [ "$TRAVIS_PUL
     echo 'Completed publish!'
   else
     echo 'Publish failed.'
-    return 1
+    exit 1
   fi
 fi
