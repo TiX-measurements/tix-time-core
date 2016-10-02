@@ -140,8 +140,7 @@ public class TixDataPacketTest {
 	@Test
 	public void testHashCode() throws UnknownHostException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, InterruptedException {
 		int hashCode = dataPacket.hashCode();
-		// Assert that hashcode is positive and does not change over time
-		assertThat(hashCode).isPositive();
+		// Assert that hashcode does not change over time
 		assertThat(hashCode).isEqualTo(dataPacket.hashCode());
 		// Assert that hashcode doesn't change when the object mutates
 		dataPacket.setReceptionTimestamp(RECEPTION_TIMESTAMP);

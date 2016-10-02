@@ -79,8 +79,7 @@ public class TixTimestampPacketTest {
 	@Test
 	public void testHashCode() throws UnknownHostException {
 		int hashCode = timestampPacket.hashCode();
-		// Assert that hashcode is positive and does not change over time
-		assertThat(hashCode).isPositive();
+		// Assert that hashcode does not change over time
 		assertThat(hashCode).isEqualTo(timestampPacket.hashCode());
 		// Assert that hashcode doesn't change when the object mutates
 		timestampPacket.setReceptionTimestamp(RECEPTION_TIMESTAMP);
