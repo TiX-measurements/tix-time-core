@@ -16,4 +16,16 @@ if [ "$TRAVIS_REPO_SLUG" == "TiX-measurements/tix-time-core" ] && [ "$TRAVIS_PUL
     echo 'Publish failed.'
     exit 1
   fi
+
+  echo -e "Attempting to promote package...\n"
+
+  ./gradlew closeAndPromoteRepository
+  RETVAL=$?
+
+  if [ $RETVAL -eq 0]; then
+    echo 'Package promoted!'
+  else
+    echo 'Could not promote package. Please check everything in the grdale-nexus-staging-plugin configuration or at Nexus repository and try it manually'
+    exit 1
+  fi
 fi
