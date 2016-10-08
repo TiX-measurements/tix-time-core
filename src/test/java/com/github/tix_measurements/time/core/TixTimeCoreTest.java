@@ -34,22 +34,12 @@ public class TixTimeCoreTest {
 		setUpData();
 	}
 
-	private void setUpData() {
-		try {
-			KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-			generator.initialize(512);
-			KeyPair keyPair = generator.genKeyPair();
-			publicKey = new String(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()));
-			filename = "a";
-			message = "a";
-			Signature signer = Signature.getInstance("SHA1WithRSA");
-			signer.initSign(keyPair.getPrivate());
-			signer.update(message.getBytes());
-			signature = signer.sign();
-		} catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
-			e.printStackTrace();
-		}
-
+	private void setUpData() throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+		KeyPair keyPair = TixTimeUtils.NEW_KEY_PAIR.get();
+		publicKey = TixDataPacket.ENCODER.apply(keyPair.getPublic().getEncoded());
+		filename = "a";
+		message = "a";
+		signature = TixTimeUtils.sign(message, keyPair);
 	}
 
 	@SuppressWarnings("unchecked")

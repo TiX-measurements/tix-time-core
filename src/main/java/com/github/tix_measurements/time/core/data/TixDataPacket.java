@@ -1,11 +1,16 @@
 package com.github.tix_measurements.time.core.data;
 
+import com.github.tix_measurements.time.core.util.TixTimeUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.net.InetSocketAddress;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.function.Function;
 
@@ -91,10 +96,18 @@ public class TixDataPacket extends TixTimestampPacket {
 	public TixDataPacket(InetSocketAddress from, InetSocketAddress to, long initialTimestamp, String publicKey,
 	                     String filename, String message, byte[] signature) {
 		super(from, to, initialTimestamp);
-		assertThat(publicKey).isNotNull().isNotEmpty();
-		assertThat(signature).isNotNull().isNotEmpty();
-		assertThat(filename).isNotNull().isNotEmpty();
-		assertThat(message).isNotNull().isNotEmpty();
+		try {
+			assertThat(publicKey).isNotNull();
+			assertThat(publicKey.trim()).isNotEmpty();
+			assertThat(filename).isNotNull();
+			assertThat(filename.trim()).isNotEmpty();
+			assertThat(message).isNotNull();
+			assertThat(message.trim()).isNotEmpty();
+			assertThat(signature).isNotNull();
+			assertThat(TixTimeUtils.verify(message, BYTE_DECODER.apply(publicKey), signature)).isTrue();
+		} catch (AssertionError ae) {
+			throw new IllegalArgumentException(ae);
+		}
 		this.publicKey = publicKey;
 		this.signature = signature;
 		this.filename = filename;

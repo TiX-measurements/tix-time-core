@@ -73,9 +73,13 @@ public class TixTimestampPacket {
 	 * @param initialTimestamp {@link #initialTimestamp}
 	 */
 	public TixTimestampPacket(InetSocketAddress from, InetSocketAddress to, long initialTimestamp) {
-		assertThat(from).isNotNull();
-		assertThat(to).isNotNull();
-		assertThat(initialTimestamp).isNotNegative();
+		try {
+			assertThat(from).isNotNull();
+			assertThat(to).isNotNull();
+			assertThat(initialTimestamp).isNotNegative();
+		} catch (AssertionError ae) {
+			throw new IllegalArgumentException(ae);
+		}
 		this.from = from;
 		this.to = to;
 		this.initialTimestamp = initialTimestamp;
@@ -185,9 +189,6 @@ public class TixTimestampPacket {
 	public int hashCode() {
 		return new HashCodeBuilder()
 				.append(this.getInitialTimestamp())
-				.append(this.getReceptionTimestamp())
-				.append(this.getSentTimestamp())
-				.append(this.getFinalTimestamp())
 				.append(this.getFrom())
 				.append(this.getTo())
 				.hashCode();
