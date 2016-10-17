@@ -18,12 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * It also exposes some variables and lambda functions to allow an easier handling when marshalling into the network.
  */
-public class TixTimestampPacket {
-
-	/**
-	 * Expected size of the payload this packet will have once it's in the UDP Packet.
-	 */
-	public static final int TIX_TIMESTAMP_PACKET_SIZE = Long.BYTES * 4;
+public class TixPacket {
 
 	/**
 	 * Lambda function that reads a timestamp from the {@link ByteBuf}.
@@ -38,24 +33,32 @@ public class TixTimestampPacket {
 	/**
 	 * {@link InetSocketAddress} expressing the sender of the packet.
 	 */
-	private final InetSocketAddress from;
+	private InetSocketAddress from;
+
 	/**
 	 * {@link InetSocketAddress} expressing the recipient of the packet.
 	 */
-	private final InetSocketAddress to;
-
+	private InetSocketAddress to;
 	/**
-	 * {@code long} representing the number of nanoseconds since the start of start of the day at local timezone when the packet was sent from the client.
+	 * {@link TixPacketType} indicating the type of this packet.
 	 */
-	private final long initialTimestamp;
+	private TixPacketType type;
 
 	/**
-	 * {@code long} representing the number of nanoseconds since the start of start of the day at local timezone when the packet was received by the server.
+	 * {@code long} representing the number of nanoseconds since the start of start of the day at local timezone when
+	 * the packet was sent from the client.
+	 */
+	private long initialTimestamp;
+
+	/**
+	 * {@code long} representing the number of nanoseconds since the start of start of the day at local timezone when
+	 * the packet was received by the server.
 	 */
 	private long receptionTimestamp;
 
 	/**
-	 * {@code long} representing the number of nanoseconds since the start of start of the day at local timezone when the packet was sent to the client.
+	 * {@code long} representing the number of nanoseconds since the start of start of the day at local timezone when
+	 * the packet was sent to the client.
 	 */
 
 	private long sentTimestamp;
@@ -65,23 +68,28 @@ public class TixTimestampPacket {
 	 */
 	private long finalTimestamp;
 
+	TixPacket() { /* Needed by Jackson to serialize. */}
+
 	/**
-	 * Main constructor of the class {@code TixTimestampPacket}. It creates a packet with the definitions passed in the arguments.
+	 * Main constructor of the class {@code TixPacket}. It creates a packet with the definitions passed in the arguments.
 	 *
 	 * @param from Sender of the packet.
 	 * @param to Recipient of the packet.
 	 * @param initialTimestamp {@link #initialTimestamp}
 	 */
-	public TixTimestampPacket(InetSocketAddress from, InetSocketAddress to, long initialTimestamp) {
+	public TixPacket(InetSocketAddress from, InetSocketAddress to, TixPacketType type, long initialTimestamp) {
 		try {
 			assertThat(from).isNotNull();
 			assertThat(to).isNotNull();
+			assertThat(type).isNotNull();
+			assertThat(type).isIn(TixPacketType.values());
 			assertThat(initialTimestamp).isNotNegative();
 		} catch (AssertionError ae) {
 			throw new IllegalArgumentException(ae);
 		}
 		this.from = from;
 		this.to = to;
+		this.type = type;
 		this.initialTimestamp = initialTimestamp;
 	}
 
@@ -99,6 +107,14 @@ public class TixTimestampPacket {
 	 */
 	public InetSocketAddress getTo() {
 		return to;
+	}
+
+	/**
+	 * Returns {@link #type}.
+	 * @return {@link #type}
+	 */
+	public TixPacketType getType() {
+		return type;
 	}
 
 	/**
@@ -135,7 +151,7 @@ public class TixTimestampPacket {
 
 	/**
 	 * Sets {@link #sentTimestamp}.
-	 * @param sentTimestamp {@link #finalTimestamp}
+	 * @param sentTimestamp {@link #sentTimestamp}
 	 */
 	public void setSentTimestamp(long sentTimestamp) {
 		assertThat(sentTimestamp).isNotNegative();
@@ -144,7 +160,7 @@ public class TixTimestampPacket {
 
 	/**
 	 * Sets {@link #receptionTimestamp}.
-	 * @param receptionTimestamp {@link #finalTimestamp}
+	 * @param receptionTimestamp {@link #receptionTimestamp}
 	 */
 	public void setReceptionTimestamp(long receptionTimestamp) {
 		assertThat(receptionTimestamp).isNotNegative();
@@ -171,7 +187,7 @@ public class TixTimestampPacket {
 		if (obj == this) {
 			return true;
 		}
-		TixTimestampPacket other = (TixTimestampPacket) obj;
+		TixPacket other = (TixPacket) obj;
 		return new EqualsBuilder()
 				.append(this.getInitialTimestamp(), other.getInitialTimestamp())
 				.append(this.getReceptionTimestamp(), other.getReceptionTimestamp())
@@ -179,6 +195,7 @@ public class TixTimestampPacket {
 				.append(this.getFinalTimestamp(), other.getFinalTimestamp())
 				.append(this.getFrom(), other.getFrom())
 				.append(this.getTo(), other.getTo())
+				.append(this.getType(), other.getType())
 				.isEquals();
 	}
 
@@ -191,6 +208,7 @@ public class TixTimestampPacket {
 				.append(this.getInitialTimestamp())
 				.append(this.getFrom())
 				.append(this.getTo())
+				.append(this.getType())
 				.hashCode();
 	}
 
@@ -200,6 +218,9 @@ public class TixTimestampPacket {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+				.append("from", this.getFrom())
+				.append("to", this.getTo())
+				.append("type", this.getType())
 				.append("initialTimestamp", this.getInitialTimestamp())
 				.append("receptionTimestamp", this.getReceptionTimestamp())
 				.append("sentTimestamp", this.getSentTimestamp())

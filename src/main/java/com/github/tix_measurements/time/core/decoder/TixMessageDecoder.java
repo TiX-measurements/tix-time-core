@@ -1,13 +1,13 @@
 package com.github.tix_measurements.time.core.decoder;
 
 import com.github.tix_measurements.time.core.data.TixDataPacket;
-import com.github.tix_measurements.time.core.data.TixTimestampPacket;
+import com.github.tix_measurements.time.core.data.TixPacket;
+import com.github.tix_measurements.time.core.data.TixPacketType;
+import com.github.tix_measurements.time.core.util.TixCoreUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import io.netty.util.CharsetUtil;
-import io.netty.util.internal.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +15,8 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
- * {@link MessageToMessageDecoder} that decodes a {@link DatagramPacket} to a TiX Packet, either {@link TixTimestampPacket} or {@link TixDataPacket}.
+ * {@link MessageToMessageDecoder} that decodes a {@link DatagramPacket} to a TiX Packet, either {@link TixPacket} or
+ * {@link TixDataPacket}.
  */
 public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 	private final Logger logger = LogManager.getLogger(this.getClass());
@@ -28,38 +29,50 @@ public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 			List<Object> out) throws Exception {
 		logger.entry(ctx, msg, out);
 		ByteBuf payload = msg.content();
-		TixTimestampPacket tixPackage;
+		TixPacket tixPacket;
+		final TixPacketType packetType = payload.readableBytes() == TixPacketType.SHORT.getSize() ?
+				TixPacketType.SHORT : TixPacketType.LONG;
 		final InetSocketAddress from = msg.sender();
 		final InetSocketAddress to = msg.recipient();
-		final long initialTimestamp = TixTimestampPacket.TIMESTAMP_READER.apply(payload);
-		final long receivedTimestamp = TixTimestampPacket.TIMESTAMP_READER.apply(payload);
-		final long sentTimestamp = TixTimestampPacket.TIMESTAMP_READER.apply(payload);
-		final long finalTimestamp = TixTimestampPacket.TIMESTAMP_READER.apply(payload);
-		if (payload.isReadable()) {
-			String rawData = payload.readBytes(payload.readableBytes()).toString(CharsetUtil.UTF_8).trim();
-			if (StringUtil.isNullOrEmpty(rawData)) {
-				logger.error("Empty data on a TixDataPacket");
-				throw new IllegalArgumentException("empty data on TixDataPacket");
-			}
-			String[] data = rawData.split(TixDataPacket.DATA_DELIMITER);
-			if (data[0].equals(TixDataPacket.DATA_HEADER)) {
-				final String publicKey = TixDataPacket.DECODER.apply(data[1].trim()).trim();
-				final String logFileName = TixDataPacket.DECODER.apply(data[2].trim()).trim();
-				final String message = TixDataPacket.DECODER.apply(data[3].trim()).trim();
-				final byte[] signature = TixDataPacket.BYTE_DECODER.apply(data[4].trim());
-				tixPackage = new TixDataPacket(from, to, initialTimestamp, publicKey, logFileName, message, signature);
-			} else {
-				logger.error("Malformed data package received {}", rawData);
-				throw new IllegalArgumentException("Malformed data package received " + rawData);
-			}
+		final long initialTimestamp = TixPacket.TIMESTAMP_READER.apply(payload);
+		final long receivedTimestamp = TixPacket.TIMESTAMP_READER.apply(payload);
+		final long sentTimestamp = TixPacket.TIMESTAMP_READER.apply(payload);
+		final long finalTimestamp = TixPacket.TIMESTAMP_READER.apply(payload);
+		if (packetType == TixPacketType.LONG && isDataPacket(payload)) {
+			byte[] publicKey = payload.readBytes(TixCoreUtils.PUBLCK_KEY_BYTES_LENGTH).array();
+			checkDelimiterOrThrowException(payload);
+			int messageLength = payload.indexOf(payload.readerIndex(), payload.array().length, TixDataPacket.DATA_DELIMITER.getBytes()[0]) - payload.readerIndex();
+			byte[] message = TixCoreUtils.DECODER.apply(new String(payload.readBytes(messageLength).array())).getBytes();
+			checkDelimiterOrThrowException(payload);
+			byte[] signature = payload.readBytes(TixCoreUtils.SIGNATURE_BYTES_SIZE).array();
+			checkDelimiterOrThrowException(payload);
+			tixPacket = new TixDataPacket(from, to, initialTimestamp, publicKey, message, signature);
 		} else {
-			tixPackage = new TixTimestampPacket(from, to, initialTimestamp);
+			tixPacket = new TixPacket(from, to, packetType, initialTimestamp);
 		}
-		tixPackage.setReceptionTimestamp(receivedTimestamp);
-		tixPackage.setSentTimestamp(sentTimestamp);
-		tixPackage.setFinalTimestamp(finalTimestamp);
-		out.add(tixPackage);
-		logger.exit(tixPackage);
+		tixPacket.setReceptionTimestamp(receivedTimestamp);
+		tixPacket.setSentTimestamp(sentTimestamp);
+		tixPacket.setFinalTimestamp(finalTimestamp);
+		out.add(tixPacket);
+		logger.exit(tixPacket);
+	}
+
+	private void checkDelimiterOrThrowException(ByteBuf payload) {
+		if (!checkDelimiter(payload)) {
+			String message = "Malformed data package";
+			logger.error(message);
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	private boolean checkDelimiter(ByteBuf payload) {
+		ByteBuf delimiterBytes = payload.readBytes(TixDataPacket.DATA_DELIMITER.getBytes().length);
+		return TixDataPacket.DATA_DELIMITER.equals(new String(delimiterBytes.array()));
+	}
+
+	private boolean isDataPacket(ByteBuf payload) {
+		ByteBuf headerBytes = payload.readBytes(TixDataPacket.DATA_HEADER.getBytes().length);
+		return TixDataPacket.DATA_HEADER.equals(new String(headerBytes.array())) && checkDelimiter(payload);
 	}
 
 }
