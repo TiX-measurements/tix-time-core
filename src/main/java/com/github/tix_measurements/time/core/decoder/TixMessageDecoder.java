@@ -42,7 +42,7 @@ public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 			byte[] publicKey = payload.readBytes(TixCoreUtils.PUBLCK_KEY_BYTES_LENGTH).array();
 			checkDelimiterOrThrowException(payload);
 			int messageLength = payload.indexOf(payload.readerIndex(), payload.array().length, TixDataPacket.DATA_DELIMITER.getBytes()[0]) - payload.readerIndex();
-			byte[] message = TixCoreUtils.DECODER.apply(new String(payload.readBytes(messageLength).array())).getBytes();
+			byte[] message = TixCoreUtils.DECODER.apply(new String(payload.readBytes(messageLength).array()));
 			checkDelimiterOrThrowException(payload);
 			byte[] signature = payload.readBytes(TixCoreUtils.SIGNATURE_BYTES_SIZE).array();
 			checkDelimiterOrThrowException(payload);

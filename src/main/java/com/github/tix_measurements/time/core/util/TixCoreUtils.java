@@ -44,22 +44,12 @@ public class TixCoreUtils {
 	public static final Supplier<Long> NANOS_OF_DAY = () -> LocalTime.now().toNanoOfDay();
 
 	/**
-	 * Lambda function that decodes into a {@link String} from a base 64 encoded {@link String}.
+	 * Lambda function that decodes a base 64 encoded {@link String} into a simple {@link byte[]} .
 	 */
-	public static final Function<String, String> DECODER = (String s) -> new String(Base64.getDecoder().decode(s));
+	public static final Function<String, byte[]> DECODER = (String s) -> Base64.getDecoder().decode(s);
 
 	/**
-	 * Lambda function that decodes into a {@code byte[]} from a base 64 encoded {@link String}.
-	 */
-	public static final Function<String, byte[]> BYTE_DECODER = (String s) -> Base64.getDecoder().decode(s);
-
-	/**
-	 * Lambda function that encodes to a base 64 {@link String} a simple {@link String}.
-	 */
-	public static final Function<String, String> STR_ENCODER = (String s) -> Base64.getEncoder().encodeToString(s.getBytes());
-
-	/**
-	 * Lambda function that encodes to a base 64 {@link String} a simple {@code byte[]}.
+	 * Lambda function that encodes a simple {@code byte[]} to a base 64 {@link String}.
 	 */
 	public static final Function<byte[], String> ENCODER = (byte[] bytes) -> Base64.getEncoder().encodeToString(bytes);
 
