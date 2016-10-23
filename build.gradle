@@ -1,5 +1,5 @@
 group 'com.github.tix-measurements'
-version '1.1.0-SNAPSHOT'
+version '2.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'idea'
