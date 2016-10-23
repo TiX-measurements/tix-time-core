@@ -1,6 +1,7 @@
 package com.github.tix_measurements.time.core;
 
 import com.github.tix_measurements.time.core.data.TixDataPacket;
+import com.github.tix_measurements.time.core.data.TixDataPacketTest;
 import com.github.tix_measurements.time.core.data.TixPacket;
 import com.github.tix_measurements.time.core.data.TixPacketType;
 import com.github.tix_measurements.time.core.decoder.TixMessageDecoder;
@@ -33,10 +34,10 @@ public class TixTimeCoreTest {
 		setUpData();
 	}
 
-	private void setUpData() throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+	private void setUpData() throws InterruptedException {
 		KeyPair keyPair = TixCoreUtils.NEW_KEY_PAIR.get();
 		publicKey = keyPair.getPublic().getEncoded();
-		message = "a".getBytes();
+		message = TixDataPacketTest.generateMessage();
 		signature = TixCoreUtils.sign(message, keyPair);
 	}
 

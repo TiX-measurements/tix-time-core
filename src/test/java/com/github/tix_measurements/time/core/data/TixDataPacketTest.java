@@ -29,7 +29,7 @@ public class TixDataPacketTest {
 	private static final long SENT_TIMESTAMP;
 	private static final long FINAL_TIMESTAMP;
 
-	private static byte[] generateMessage() throws InterruptedException {
+	public static byte[] generateMessage() throws InterruptedException {
 		int reports = 10;
 		int timestamps = 4;
 		int timestampSize = Long.BYTES;
