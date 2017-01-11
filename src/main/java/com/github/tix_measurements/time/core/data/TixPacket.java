@@ -75,6 +75,7 @@ public class TixPacket {
 	 *
 	 * @param from Sender of the packet.
 	 * @param to Recipient of the packet.
+	 * @param type {@link TixPacketType} indicating if its a long or short packet
 	 * @param initialTimestamp {@link #initialTimestamp}
 	 */
 	public TixPacket(InetSocketAddress from, InetSocketAddress to, TixPacketType type, long initialTimestamp) {
@@ -82,7 +83,7 @@ public class TixPacket {
 			assertThat(from).isNotNull();
 			assertThat(to).isNotNull();
 			assertThat(type).isNotNull();
-			assertThat(type).isIn(TixPacketType.values());
+			assertThat(type).isIn((Object[]) TixPacketType.values());
 			assertThat(initialTimestamp).isNotNegative();
 		} catch (AssertionError ae) {
 			throw new IllegalArgumentException(ae);
