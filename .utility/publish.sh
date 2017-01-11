@@ -10,7 +10,7 @@ if [ "$TRAVIS_REPO_SLUG" == "TiX-measurements/tix-time-core" ] && [ "$TRAVIS_PUL
   ./gradlew uploadArchives -PnexusUsername="${NEXUS_USERNAME}" -PnexusPassword="${NEXUS_PASSWORD}" -Psigning.keyId="${SIGNING_KEY_ID}" -Psigning.password="${SIGNING_PASSWORD}" -Psigning.secretKeyRingFile=.utility/secring.gpg
   RETVAL=$?
 
-  if [ $RETVAL -eq 0 ]; then
+  if [ ${RETVAL} -eq 0 ]; then
     echo 'Completed publish!'
   else
     echo 'Publish failed.'
@@ -22,7 +22,7 @@ if [ "$TRAVIS_REPO_SLUG" == "TiX-measurements/tix-time-core" ] && [ "$TRAVIS_PUL
   ./gradlew closeAndPromoteRepository
   RETVAL=$?
 
-  if [ $RETVAL -eq 0]; then
+  if [ ${RETVAL} -eq 0]; then
     echo 'Package promoted!'
   else
     echo 'Could not promote package. Please check everything in the grdale-nexus-staging-plugin configuration or at Nexus repository and try it manually'
