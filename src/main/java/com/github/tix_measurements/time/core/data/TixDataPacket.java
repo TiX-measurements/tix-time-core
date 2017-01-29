@@ -66,6 +66,8 @@ public class TixDataPacket extends TixPacket {
 	 * @param from Sender of the packet
 	 * @param to Recipient of the packet
 	 * @param initialTimestamp {@link #initialTimestamp}
+	 * @param userId {@link #userId}
+	 * @param installationId {@link #installationId}
 	 * @param publicKey {@link #publicKey}
 	 * @param message {@link #message}
 	 * @param signature {@link #signature}
