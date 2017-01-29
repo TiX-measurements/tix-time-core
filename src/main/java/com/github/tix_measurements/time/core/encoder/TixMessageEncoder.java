@@ -34,8 +34,12 @@ public class TixMessageEncoder extends MessageToMessageEncoder<TixPacket> {
 		if (msg.getType() == TixPacketType.LONG) {
 			if (msg instanceof TixDataPacket) {
 				TixDataPacket dataPacket = (TixDataPacket) msg;
+				datagramPacket.content().writeBytes(TixDataPacket.DATA_HEADER.getBytes());
+				datagramPacket.content().writeBytes(TixDataPacket.DATA_DELIMITER.getBytes());
+				TixPacket.TIMESTAMP_WRITER.apply(datagramPacket.content(), dataPacket.getUserId());
+				TixPacket.TIMESTAMP_WRITER.apply(datagramPacket.content(), dataPacket.getInstallationId());
+				datagramPacket.content().writeBytes(TixDataPacket.DATA_DELIMITER.getBytes());
 				for (byte[] bytes : new byte[][]{
-						TixDataPacket.DATA_HEADER.getBytes(),
 						dataPacket.getPublicKey(),
 						TixCoreUtils.ENCODER.apply(dataPacket.getMessage()).getBytes(),
 						dataPacket.getSignature()}){

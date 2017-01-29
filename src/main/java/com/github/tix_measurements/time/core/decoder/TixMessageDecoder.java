@@ -26,7 +26,7 @@ public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 	 */
 	@Override
 	protected void decode(ChannelHandlerContext ctx, DatagramPacket msg,
-			List<Object> out) throws Exception {
+	                      List<Object> out) throws Exception {
 		logger.entry(ctx, msg, out);
 		ByteBuf payload = msg.content();
 		TixPacket tixPacket;
@@ -39,6 +39,9 @@ public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 		final long sentTimestamp = TixPacket.TIMESTAMP_READER.apply(payload);
 		final long finalTimestamp = TixPacket.TIMESTAMP_READER.apply(payload);
 		if (packetType == TixPacketType.LONG && isDataPacket(payload)) {
+			final long userId = TixPacket.ENTITY_ID_READER.apply(payload);
+			final long installationId = TixPacket.ENTITY_ID_READER.apply(payload);
+			checkDelimiterOrThrowException(payload);
 			byte[] publicKey = payload.readBytes(TixCoreUtils.PUBLCK_KEY_BYTES_LENGTH).array();
 			checkDelimiterOrThrowException(payload);
 			int messageLength = payload.indexOf(payload.readerIndex(), payload.capacity(), TixDataPacket.DATA_DELIMITER.getBytes()[0]) - payload.readerIndex();
@@ -46,7 +49,7 @@ public class TixMessageDecoder extends MessageToMessageDecoder<DatagramPacket> {
 			checkDelimiterOrThrowException(payload);
 			byte[] signature = payload.readBytes(TixCoreUtils.SIGNATURE_BYTES_SIZE).array();
 			checkDelimiterOrThrowException(payload);
-			tixPacket = new TixDataPacket(from, to, initialTimestamp, publicKey, message, signature);
+			tixPacket = new TixDataPacket(from, to, initialTimestamp, userId, installationId, publicKey, message, signature);
 		} else {
 			tixPacket = new TixPacket(from, to, packetType, initialTimestamp);
 		}

@@ -11,7 +11,7 @@ public enum TixPacketType {
 	/**
 	 * Long Packet types
 	 */
-	LONG(Long.BYTES * 4 + 4400);
+	LONG(Long.BYTES * 6 + 4400);
 
 	/**
 	 * Expected size in bytes of the payload this packet type will have once it is in the UDP Frame

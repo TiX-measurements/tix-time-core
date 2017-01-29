@@ -28,6 +28,8 @@ public class TixDataPacketTest {
 	private static final long RECEPTION_TIMESTAMP;
 	private static final long SENT_TIMESTAMP;
 	private static final long FINAL_TIMESTAMP;
+	private static final long USER_ID;
+	private static final long INSTALLATION_ID;
 
 	public static byte[] generateMessage() throws InterruptedException {
 		int reports = 10;
@@ -62,6 +64,8 @@ public class TixDataPacketTest {
 			SENT_TIMESTAMP = TixCoreUtils.NANOS_OF_DAY.get();
 			Thread.sleep(5L);
 			FINAL_TIMESTAMP = TixCoreUtils.NANOS_OF_DAY.get();
+			USER_ID = 1L;
+			INSTALLATION_ID = 1L;
 		} catch (Throwable t) {
 			throw new RuntimeException(t);
 		}
@@ -71,27 +75,31 @@ public class TixDataPacketTest {
 
 	@Before
 	public void setup() {
-		dataPacket = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		dataPacket = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
 	}
 
 	@Test
 	public void testConstructor() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(null, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(null, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, null, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(FROM, null, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, TO, -1, PUBLIC_KEY, MESSAGE, SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, -1, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, new byte[0], MESSAGE, SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, -1L, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, null, MESSAGE, SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, -1L, PUBLIC_KEY, MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, new byte[0], SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, new byte[0], MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, null, SIGNATURE));
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, null, MESSAGE, SIGNATURE));
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, null));
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, new byte[0], SIGNATURE));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, null, SIGNATURE));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, null));
 	}
 
 	@Test
@@ -100,6 +108,8 @@ public class TixDataPacketTest {
 		assertThat(dataPacket.getTo()).isEqualTo(TO);
 		assertThat(dataPacket.getType()).isEqualTo(TixPacketType.LONG);
 		assertThat(dataPacket.getInitialTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
+		assertThat(dataPacket.getUserId()).isEqualTo(USER_ID);
+		assertThat(dataPacket.getInstallationId()).isEqualTo(INSTALLATION_ID);
 		assertThat(dataPacket.getMessage()).isEqualTo(MESSAGE);
 		assertThat(dataPacket.getPublicKey()).isEqualTo(PUBLIC_KEY);
 		assertThat(dataPacket.getSignature()).isEqualTo(SIGNATURE);
@@ -131,27 +141,33 @@ public class TixDataPacketTest {
 		assertThat(hashCode).isEqualTo(dataPacket.hashCode());
 		// Assert that hashcode changes when initial object's values changes
 		// Inversion of from - to
-		TixDataPacket other = new TixDataPacket(TO, FROM, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		TixDataPacket other = new TixDataPacket(TO, FROM, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
 		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
 		// Different from/to IPs
 		InetSocketAddress otherAddress = new InetSocketAddress(InetAddress.getByName("8.8.8.4"), 4500);
-		other = new TixDataPacket(otherAddress, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		other = new TixDataPacket(otherAddress, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
 		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
-		other = new TixDataPacket(FROM, otherAddress, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		other = new TixDataPacket(FROM, otherAddress, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
 		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
 		// Different initial timestamp
-		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP + 1, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP + 1, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
+		// Different user
+		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID + 1, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
+		// Different installation
+		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID + 1, PUBLIC_KEY, MESSAGE, SIGNATURE);
 		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
 		// Different public key - signature
 		KeyPair otherKeyPair = TixCoreUtils.NEW_KEY_PAIR.get();
 		byte[] otherPublicKey = otherKeyPair.getPublic().getEncoded();
 		byte[] otherSignature = TixCoreUtils.sign(MESSAGE, otherKeyPair);
-		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, otherPublicKey, MESSAGE, otherSignature);
+		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, otherPublicKey, MESSAGE, otherSignature);
 		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
 		// Different message - signature
 		byte[] otherMessage = generateMessage();
 		otherSignature = TixCoreUtils.sign(otherMessage, KEY_PAIR);
-		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, otherMessage, otherSignature);
+		other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, otherMessage, otherSignature);
 		assertThat(dataPacket.hashCode()).isNotEqualTo(other.hashCode());
 	}
 
@@ -164,7 +180,7 @@ public class TixDataPacketTest {
 	public void testIsValidReturnsFalseOnBadSignature() {
 		byte[] badSignature = Arrays.copyOf(SIGNATURE, SIGNATURE.length);
 		badSignature[0]++;
-		TixDataPacket packet = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, badSignature);
+		TixDataPacket packet = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, badSignature);
 		assertThat(packet.isValid()).isFalse();
 	}
 
@@ -172,7 +188,7 @@ public class TixDataPacketTest {
 	public void testExceptionThrownOnInvalidSignature() {
 		assertThatExceptionOfType(IllegalStateException.class)
 				.isThrownBy(() -> {
-					TixDataPacket packet = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, new byte[0]);
+					TixDataPacket packet = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, new byte[0]);
 					packet.isValid();
 				});
 	}
@@ -182,7 +198,7 @@ public class TixDataPacketTest {
 		assertThat(dataPacket).isNotEqualTo(null);
 		assertThat(dataPacket).isNotEqualTo(new Object());
 		assertThat(dataPacket).isEqualTo(dataPacket);
-		TixDataPacket other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, PUBLIC_KEY, MESSAGE, SIGNATURE);
+		TixDataPacket other = new TixDataPacket(FROM, TO, INITIAL_TIMESTAMP, USER_ID, INSTALLATION_ID, PUBLIC_KEY, MESSAGE, SIGNATURE);
 		assertThat(dataPacket).isEqualTo(other);
 		other.setReceptionTimestamp(RECEPTION_TIMESTAMP);
 		assertThat(dataPacket).isNotEqualTo(other);

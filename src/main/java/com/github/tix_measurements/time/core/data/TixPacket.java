@@ -31,6 +31,16 @@ public class TixPacket {
 	public static final BiFunction<ByteBuf, Long, ByteBuf> TIMESTAMP_WRITER = ByteBuf::writeLong;
 
 	/**
+	 * Lambda function that reads an Entity ID into a {@link ByteBuf}.
+	 */
+	public static final Function<ByteBuf, Long> ENTITY_ID_READER = ByteBuf::readLong;
+
+	/**
+	 * Lambda function that writes an Entity ID into a {@link ByteBuf}.
+	 */
+	public static final BiFunction<ByteBuf, Long, ByteBuf> ENTITY_ID_WRITER = ByteBuf::writeLong;
+
+	/**
 	 * {@link InetSocketAddress} expressing the sender of the packet.
 	 */
 	private InetSocketAddress from;

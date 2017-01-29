@@ -25,6 +25,8 @@ public class TixTimeCoreTest {
 	private byte[] publicKey;
 	private byte[] message;
 	private byte[] signature;
+	private long userId;
+	private long installationId;
 
 	@Before
 	public void setUp() throws Exception {
@@ -35,13 +37,15 @@ public class TixTimeCoreTest {
 	}
 
 	private void setUpData() throws InterruptedException {
+		userId = 1L;
+		installationId = 1L;
 		KeyPair keyPair = TixCoreUtils.NEW_KEY_PAIR.get();
 		publicKey = keyPair.getPublic().getEncoded();
 		message = TixDataPacketTest.generateMessage();
 		signature = TixCoreUtils.sign(message, keyPair);
 	}
 
-	private TixPacket passThroughChannel(TixPacket message) {
+	private <T extends TixPacket> T passThroughChannel(T message) {
 		assertThat(embeddedChannel.writeOutbound(message)).isTrue();
 		Object o = embeddedChannel.readOutbound();
 		assertThat(o).isNotNull();
@@ -49,14 +53,14 @@ public class TixTimeCoreTest {
 		assertThat(embeddedChannel.writeInbound(datagramPacket)).isTrue();
 		Object returnedMessage = embeddedChannel.readInbound();
 		assertThat(returnedMessage).isNotNull();
-		return (TixPacket) returnedMessage;
+		return (T) returnedMessage;
 	}
 
-	private void testPassThroughChannel(TixPacket packet) {
+	private <T extends TixPacket> void testPassThroughChannel(T packet) {
 		packet.setReceptionTimestamp(packet.getInitialTimestamp() + 1);
 		packet.setSentTimestamp(packet.getInitialTimestamp() + 2);
 		packet.setFinalTimestamp(packet.getInitialTimestamp() + 3);
-		TixPacket returnedTimestampPackage = passThroughChannel(packet);
+		T returnedTimestampPackage = passThroughChannel(packet);
 		assertThat(packet).isNotSameAs(returnedTimestampPackage)
 				.isEqualTo(returnedTimestampPackage);
 	}
@@ -75,7 +79,7 @@ public class TixTimeCoreTest {
 
 	@Test
 	public void shouldEncodeAndDecodeTixDataPackage() throws Exception {
-		TixDataPacket dataPackage = new TixDataPacket(from, to, TixCoreUtils.NANOS_OF_DAY.get(), publicKey, message, signature);
+		TixDataPacket dataPackage = new TixDataPacket(from, to, TixCoreUtils.NANOS_OF_DAY.get(), userId, installationId, publicKey, message, signature);
 		testPassThroughChannel(dataPackage);
 	}
 }

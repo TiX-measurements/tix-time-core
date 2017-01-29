@@ -48,6 +48,16 @@ public class TixDataPacket extends TixPacket {
 	 */
 	private byte[] signature;
 
+	/**
+	 * User ID to which this packet belongs.
+	 */
+	private long userId;
+
+	/**
+	 * Installation ID to which this packet belongs.
+	 */
+	private long installationId;
+
 	TixDataPacket() {/* Used by Jackson to serialize this packet */ }
 
 	/**
@@ -60,10 +70,12 @@ public class TixDataPacket extends TixPacket {
 	 * @param message {@link #message}
 	 * @param signature {@link #signature}
 	 */
-	public TixDataPacket(InetSocketAddress from, InetSocketAddress to, long initialTimestamp, byte[] publicKey,
-	                     byte[] message, byte[] signature) {
+	public TixDataPacket(InetSocketAddress from, InetSocketAddress to, long initialTimestamp, long userId,
+	                     long installationId, byte[] publicKey, byte[] message, byte[] signature) {
 		super(from, to, TixPacketType.LONG, initialTimestamp);
 		try {
+			assertThat(userId).isPositive();
+			assertThat(installationId).isPositive();
 			assertThat(publicKey).isNotNull();
 			assertThat(publicKey).isNotEmpty();
 			assertThat(publicKey).hasSize(TixCoreUtils.PUBLCK_KEY_BYTES_LENGTH);
@@ -76,9 +88,9 @@ public class TixDataPacket extends TixPacket {
 		this.publicKey = publicKey;
 		this.signature = signature;
 		this.message = message;
+		this.userId = userId;
+		this.installationId = installationId;
 	}
-
-
 
 	/**
 	 * Returns the {@link #publicKey}
@@ -102,6 +114,22 @@ public class TixDataPacket extends TixPacket {
 	 */
 	public byte[] getMessage() {
 		return message;
+	}
+
+	/**
+	 * Returns the {@link #userId}
+	 * @return {@link #userId}
+	 */
+	public long getUserId() {
+		return userId;
+	}
+
+	/**
+	 * Returns the {@link #installationId}
+	 * @return {@link #installationId}
+	 */
+	public long getInstallationId() {
+		return installationId;
 	}
 
 	/**
@@ -134,6 +162,8 @@ public class TixDataPacket extends TixPacket {
 				.append(this.getPublicKey(), other.getPublicKey())
 				.append(this.getSignature(), other.getSignature())
 				.append(this.getMessage(), other.getMessage())
+				.append(this.getUserId(), other.getUserId())
+				.append(this.getInstallationId(), other.getInstallationId())
 				.isEquals();
 	}
 
@@ -147,6 +177,8 @@ public class TixDataPacket extends TixPacket {
 				.append(this.getPublicKey())
 				.append(this.getSignature())
 				.append(this.getMessage())
+				.append(this.getUserId())
+				.append(this.getInstallationId())
 				.hashCode();
 	}
 
@@ -160,6 +192,8 @@ public class TixDataPacket extends TixPacket {
 				.append("publicKey", this.getPublicKey())
 				.append("signature", this.getSignature())
 				.append("message", this.getMessage())
+				.append("userId", this.getUserId())
+				.append("installationId", this.getInstallationId())
 				.toString();
 	}
 }
