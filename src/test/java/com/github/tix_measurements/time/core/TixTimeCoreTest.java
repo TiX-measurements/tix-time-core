@@ -45,6 +45,7 @@ public class TixTimeCoreTest {
 		signature = TixCoreUtils.sign(message, keyPair);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T extends TixPacket> T passThroughChannel(T message) {
 		assertThat(embeddedChannel.writeOutbound(message)).isTrue();
 		Object o = embeddedChannel.readOutbound();

@@ -80,7 +80,6 @@ public class TixDataPacket extends TixPacket {
 			assertThat(installationId).isPositive();
 			assertThat(publicKey).isNotNull();
 			assertThat(publicKey).isNotEmpty();
-			assertThat(publicKey).hasSize(TixCoreUtils.PUBLCK_KEY_BYTES_LENGTH);
 			assertThat(message).isNotNull();
 			assertThat(message).isNotEmpty();
 			assertThat(signature).isNotNull();
