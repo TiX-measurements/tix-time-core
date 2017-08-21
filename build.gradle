@@ -1,5 +1,5 @@
 group 'com.github.tix-measurements'
-version '2.2.2'
+version '2.2.3'
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -51,7 +51,7 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-all', version: "${mockitoVersion}"
 }
 
-task getVersion << {
+task getVersion {
     println version
 }
 
@@ -66,9 +66,9 @@ jacoco {
 jacocoTestReport {
     reports {
         xml.enabled true
-        xml.destination "${buildDir}/test-results/coverage.xml"
+        xml.destination file("${buildDir}/test-results/coverage.xml")
         csv.enabled false
-        html.destination "${buildDir}/reports/coverage"
+        html.destination file("${buildDir}/reports/coverage")
     }
 }
 
@@ -76,7 +76,7 @@ test {
     jacoco {
         append = false
         destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
-        classDumpFile = file("$buildDir/jacoco/classpathdumps")
+        classDumpDir = file("$buildDir/jacoco/classpathdumps")
     }
 }
 
