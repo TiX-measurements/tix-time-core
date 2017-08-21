@@ -61,6 +61,9 @@ public class TixPacketTest {
 		assertThat(shortPacket.getTo()).isEqualTo(TO);
 		assertThat(shortPacket.getInitialTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
 		assertThat(shortPacket.getType()).isEqualTo(TixPacketType.SHORT);
+		assertThat(shortPacket.getReceptionTimestamp()).isZero();
+		assertThat(shortPacket.getSentTimestamp()).isZero();
+		assertThat(shortPacket.getFinalTimestamp()).isZero();
 		assertThat(longPacket.getType()).isEqualTo(TixPacketType.LONG);
 	}
 

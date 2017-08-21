@@ -3,9 +3,10 @@ package com.github.tix_measurements.time.core.util;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.Base64;
-import java.util.function.BiFunction;
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -41,7 +42,7 @@ public class TixCoreUtils {
 	/**
 	 * Returns the number of nanoseconds since the start of the day at local time.
 	 */
-	public static final Supplier<Long> NANOS_OF_DAY = () -> LocalTime.now().toNanoOfDay();
+	public static final Supplier<Long> NANOS_OF_DAY = new NanosOfDayTimestampSupplier();
 
 	/**
 	 * Lambda function that decodes a base 64 encoded {@link String} into a simple {@link byte[]} .
@@ -101,6 +102,31 @@ public class TixCoreUtils {
 			return signer.verify(signature);
 		} catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
 			throw new IllegalArgumentException(e);
+		}
+	}
+
+	private static class NanosOfDayTimestampSupplier implements Supplier<Long> {
+		private final long startNanos;
+		private final long nanoDeltaToEpoch;
+
+		private static long millisToNanos(long millis) {
+			return millis * 1000000;
+		}
+
+		public NanosOfDayTimestampSupplier() {
+			startNanos = System.nanoTime();
+			long currentMillis = System.currentTimeMillis();
+			long currentMillisInNanos = millisToNanos(currentMillis);
+			long currentNanos = System.nanoTime();
+			nanoDeltaToEpoch = currentMillisInNanos - currentNanos;
+		}
+
+		@Override
+		public Long get() {
+			long todayStartMillis = LocalDate.now().atStartOfDay(ZoneId.of(ZoneOffset.UTC.getId())).toInstant().toEpochMilli();
+			long todayStartNanos = millisToNanos(todayStartMillis);
+			long currentNanos = System.nanoTime();
+			return currentNanos + nanoDeltaToEpoch - todayStartNanos;
 		}
 	}
 
